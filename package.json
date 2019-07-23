@@ -1,0 +1,26 @@
+{
+  "name": "hyperapp-xstate-demo",
+  "version": "0.0.1",
+  "description": "A hyperapp demo using xstate and PWA",
+  "main": "main.js",
+  "scripts": {
+    "start": "node ./compilePug.js && parcel ./src/index.html && cpx ./src/sw.js ./dist"
+  },
+  "author": "John Kazer",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "cpx": "^1.5.0",
+    "parcel": "^1.12.3",
+    "virtual-dom": "^2.1.1"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.4.5",
+    "hyperapp": "2.0.0-beta.22",
+    "idb-keyval": "^3.2.0",
+    "pug": "^2.0.4",
+    "pug-vdom": "^1.0.12",
+    "ramda": "^0.26.1"
+  }
+}

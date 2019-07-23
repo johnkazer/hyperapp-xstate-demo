@@ -1,0 +1,31 @@
+// always need a single node entry point, so start with a parent div
+div
+    h1 #{title}
+    if !installed
+        button.btn(onclick=installAsPwa) Install
+    p(class=status) #{onlineStatusMsg}
+    p #{uploadingStatusMsg}
+    - var showTab
+    .tab.align-centre
+        each button in tabs
+            button.tabLinks(id=button.id onclick=button.action) #{button.txt}
+            if (button.active)
+                - showTab = button.tabName
+    +displayTab(showTab, 'videoSelection')
+        div.align-centre
+            video(autoPlay playsInline muted id="webcam" width="100%" height="200")
+            #imageCanvas.imageCanvas
+                each img in images
+                    img(src=img alt="captured" height="200")
+            br
+        div.align-centre
+            +displayButtons('videoTab')
+    +displayTab(showTab, 'audioSelection')
+        p #{recordingStatusMsg}
+        div.align-centre
+            +displayButtons('audioTab')
+        if audioUrl.length
+            each url in audioUrl
+                audio(src = url, controls='controls' )
+                a(href=url)
+    include mixins.pug
