@@ -1,22 +1,18 @@
 const files = [
-  './src/index.html',
-  './src/*.png',
-  './src/*.css',
-  './src/*.js'
+  './index.html',
+  './default.html',
+  './main.1f19ae8e.js',
+  './style.78032849.css',
+  './style.78032849.js',
+  './manifest.webmanifest',
+  'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'
   ];
   
   self.addEventListener('install', async e => {
     const cache = await caches.open('files');
     cache.addAll(files);
   });
-  
-  // https://any-api.com/oxforddictionaries_com/oxforddictionaries_com/docs/_entries_source_lang_word_id_/GET
-  const apiUrl = 'https://od-api-demo.oxforddictionaries.com:443/api/v1/entries/en/swim';
-  
-  function isApiCall(req) {
-    return req.url.startsWith(apiUrl);
-  }
-  
+    
   async function getFromCache(req) {
     const res = await caches.match(req);
   
@@ -28,13 +24,7 @@ const files = [
   }
   
   async function getFallback(req) {
-    const path = req.url.substr(apiUrl.length);
-  
-    if (path.startsWith('/latest')) {
-      return caches.match('./fallback/posts.json');
-    } else {
-      return null
-    }
+      return caches.match('./default.html');
   }
   
   async function getFromNetwork(req) {
@@ -52,6 +42,6 @@ const files = [
   
   self.addEventListener('fetch', async e => {
     const req = e.request;
-    const res = isApiCall(req) ? getFromNetwork(req) : getFromCache(req);
+    const res = navigator.onLine ? getFromNetwork(req) : getFromCache(req);
     await e.respondWith(res);
   });

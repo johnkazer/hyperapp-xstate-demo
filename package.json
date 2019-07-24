@@ -4,7 +4,7 @@
   "description": "A hyperapp demo using xstate and PWA",
   "main": "main.js",
   "scripts": {
-    "start": "node ./compilePug.js && parcel ./src/index.html && cpx ./src/sw.js ./dist"
+    "start": "node ./compilePug.js && cpx ./src/sw.js ./dist && cpx ./src/default.html ./dist && parcel ./src/index.html"
   },
   "author": "John Kazer",
   "license": "ISC",

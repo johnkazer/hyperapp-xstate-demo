@@ -1,5 +1,5 @@
 import effects from './effects.js'
-import { concat } from 'ramda'
+import { concat, lensPath, set, pipe } from 'ramda'
 import U from './utils.js'
 // Don't curry actions passed to effects! It feels like you need to in order to grab `state` when passing an action, but this is what the `dispatch()` function will do
 
@@ -11,6 +11,9 @@ const actions = ( () => {
     const targetValue = event => event.target.value
     const targetProp = prop => event => event.target[prop]
     const targetId = targetProp('id')
+
+    const videoUseByLens = lensPath([0, 'usedBy'])
+    const audioUseByLens = lensPath([1, 'usedBy'])
     
     const manageUpload = (state, status, images, recordings) => {
         if (status === 'offline') { // save file to local storage
@@ -46,15 +49,17 @@ const actions = ( () => {
     }
     const captureImage = (state, event) => {
         const uploadingStatusMsg = 'Not uploading'
+        const tabs = set(videoUseByLens, IMAGE_STATE.TAKEN, state.tabs)
         return [
             {
-                ...state, uploadingStatusMsg
+                ...state, uploadingStatusMsg, tabs
             },
             effects.takePictureFx(processImage)
         ]
     }
     const discardImage = (state, value) => {
-        return U.resetImage(state, IMAGE_STATE.INIT)
+        const tabs = set(videoUseByLens, IMAGE_STATE.INIT, state.tabs)
+        return U.resetImage({ ...state, tabs }, IMAGE_STATE.INIT)
     }
     const httpSuccessMsg = (state, { request, status }) => {
         switch (request) {
@@ -65,8 +70,15 @@ const actions = ( () => {
             const recordings = []
             const audioUrl = []
             const images = []
+            const audioUseByLensPartial = set(audioUseByLens, AUDIO_STATE.INIT)
+            const videoUseByLensPartial = set(videoUseByLens, IMAGE_STATE.INIT)
+            const resetSelectedTab = U.selectTab(state, 'videoTab')
+            const tabs = pipe(
+                videoUseByLensPartial,
+                audioUseByLensPartial
+            )(resetSelectedTab.tabs)
             return [
-                { ...state, uploadingStatusMsg, buttons, recordings, images, audioUrl, recordingStatusMsg },
+                { ...resetSelectedTab, uploadingStatusMsg, buttons, recordings, images, audioUrl, recordingStatusMsg, tabs },
                 effects.removeFromLocalStoreFx()
             ]
         }
@@ -91,7 +103,8 @@ const actions = ( () => {
         return manageUpload(state, status, images, recordings)
     }
     const deleteAudio = (state, value) => {
-        return U.resetAudio(state, AUDIO_STATE.INIT)
+        const tabs = set(audioUseByLens, AUDIO_STATE.INIT, state.tabs)
+        return U.resetAudio({ ...state, tabs }, AUDIO_STATE.INIT)
     }
     const audioReady = (state, { status, url, recordings }) => {
         if (status === AUDIO_STATE.READY) {
@@ -103,10 +116,15 @@ const actions = ( () => {
             return U.resetAudio(state, AUDIO_STATE.INIT)
         }
     }
-    const stopAudio = (state, value) => [
-        state,
-        effects.stopRecordingFx(audioReady)
-    ]
+    const stopAudio = (state, value) => {
+        const tabs = set(audioUseByLens, AUDIO_STATE.READY, state.tabs)
+        return [
+            {
+                ...state, tabs
+            },
+            effects.stopRecordingFx(audioReady)
+        ]
+    }
     const recordingStarted = (state, response) => {
         if (response.status === AUDIO_STATE.RECORDING) {
             const recordingStatusMsg = 'Recording...'
