@@ -1,6 +1,8 @@
 import effects from './effects.js'
 import { concat, lensPath, set, pipe } from 'ramda'
 import U from './utils.js'
+import { videoMachine } from './machines.js'
+import { interpret } from 'xstate'
 // Don't curry actions passed to effects! It feels like you need to in order to grab `state` when passing an action, but this is what the `dispatch()` function will do
 
 const actions = ( () => {
@@ -14,6 +16,11 @@ const actions = ( () => {
 
     const videoUseByLens = lensPath([0, 'usedBy'])
     const audioUseByLens = lensPath([1, 'usedBy'])
+
+    const updateVideoState = (state, id) => {
+        const videoState = interpret(videoMachine, id)
+        return { ...state, videoState }
+    }
     
     const manageUpload = (state, status, images, recordings) => {
         if (status === 'offline') { // save file to local storage
@@ -151,10 +158,10 @@ const actions = ( () => {
         'recordings': [],
         'audioUrl': [],
         'buttons': [
-            { 'id': 'uploadImage', 'active': false, 'action': uploadFiles, 'txt': 'Upload Photo', 'usedBy': IMAGE_STATE.TAKEN },
-            { 'id': 'discardImage', 'active': false, 'action': discardImage, 'txt': 'Delete Photo', 'usedBy': IMAGE_STATE.TAKEN },
-            { 'id': 'captureImage', 'active': true, 'action': captureImage, 'txt': 'Take Picture', 'usedBy': IMAGE_STATE.INIT  },
-            { 'id': 'uploadAudio', 'active': false, 'action': uploadFiles, 'txt': 'Upload Recording', 'usedBy': AUDIO_STATE.READY },
+            { 'id': 'uploadImage', 'active': false, 'action': [updateVideoState, targetId], 'txt': 'Save Photo' },
+            { 'id': 'discardImage', 'active': false, 'action': [updateVideoState, targetId], 'txt': 'Delete Photo' },
+            { 'id': 'captureImage', 'active': true, 'action': [updateVideoState, targetId], 'txt': 'Take Picture'  },
+            { 'id': 'uploadAudio', 'active': false, 'action': uploadFiles, 'txt': 'Save Recording', 'usedBy': AUDIO_STATE.READY },
             { 'id': 'deleteAudio', 'active': false, 'action': deleteAudio, 'txt': 'Delete Recording', 'usedBy': AUDIO_STATE.READY },
             { 'id': 'stopAudio', 'active': false, 'action': stopAudio, 'txt': 'Stop', 'usedBy': AUDIO_STATE.RECORDING },
             { 'id': 'recordAudio', 'active': false, 'action': recordAudio, 'txt': 'Start Recording', 'usedBy': AUDIO_STATE.INIT },
@@ -164,7 +171,9 @@ const actions = ( () => {
             { 'id': 'audioTab', 'active': false, 'action': [U.selectTab, targetId], 'tabName': 'audioSelection', 'txt': 'Make a Recording', 'usedBy': AUDIO_STATE.INIT }
         ],
         'installAsPwa': installAsPwa,
-        'installed': true
+        'installed': true,
+        'videoState': {},
+        'audioState': {}
     }
         
     return Object.freeze({
