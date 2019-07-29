@@ -24,7 +24,6 @@ const actions = ( () => {
                 effects.addToLocalStoreFx(images, recordings)
             ]
         } else {
-            const buttonStatus = IMAGE_STATE.INIT
             const onlineStatusMsg = 'App is online'
             const uploadingStatusMsg = 'Uploading files(s), please wait ...'
             return [
