@@ -13,7 +13,6 @@ const requestHandler = (function () {
         const setup = function () {
             webcamElement = getWebcam();
             canvasElement = document.createElement('canvas');
-            return new Promise((resolve, reject) => {
                 if (navigator.mediaDevices.getUserMedia !== undefined) {
                     const userMediaResponse = navigator.mediaDevices.getUserMedia({
                         audio: false, video: { facingMode: 'environment' } // facingMode is 'user' for selfie cam
@@ -25,23 +24,23 @@ const requestHandler = (function () {
                             // For older browsers without the srcObject.
                                 webcamElement.src = window.URL.createObjectURL(mediaStream);
                             }
-                            return webcamElement.addEventListener(
+                            webcamElement.addEventListener(
                                 'loadeddata',
                                 async () => {
                                     const adjustedSize = adjustVideoSize(
                                         webcamElement.videoWidth,
                                         webcamElement.videoHeight
                                     );
-                                    return resolve(webcamElement);
                                 },
                                 false
                             );
-                        });
-                    return resolve()
+                            return
+                        })
+                        .catch((e) => console.log(e))
+                    return Promise.resolve(userMediaResponse)
                 } else {
-                    return reject('No media device available');
+                    alert('Your browser does not support video')
                 }
-            });
         }
         /** Take a photo as a canvas Blob
          * @return {Promise} A promise to return and object with the blob, height, width
@@ -106,7 +105,7 @@ const requestHandler = (function () {
                 .then(function (items) {
                     const promises = pipe(filter(item => item.includes(query)), map((item) => idb.get(item)))(items)
                     return Promise.all(promises)
-                        .then((result) => result)
+                        .then((result) => result ? result : [])
                 })
         }
         const storeLocalItems = (item, type) => {
