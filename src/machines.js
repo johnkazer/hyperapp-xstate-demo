@@ -5,15 +5,8 @@ export const videoMachine = Machine ({
     context: {
         statusMessage: ''
     },
-    initial: 'setup',
+    initial: 'connected',
     states: {
-        setup: {
-            entry: ['setup', 'activate'],
-            on: {
-                connect: 'connected',
-                fail: 'setup'
-            }
-        },
         connected: {
             on: {
                 captureImage: 'capture'
