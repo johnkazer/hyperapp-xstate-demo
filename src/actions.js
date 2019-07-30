@@ -1,5 +1,5 @@
 import effects from './effects.js'
-import { concat, lensPath, set, pipe } from 'ramda'
+import { concat, lensPath, set, pipe, pathEq, filter, curry, map, pathOr, view } from 'ramda'
 import U from './utils.js'
 import { videoMachine } from './machines.js'
 import { interpret } from 'xstate'
@@ -16,6 +16,7 @@ const actions = ( () => {
 
     const videoUseByLens = lensPath([0, 'usedBy'])
     const audioUseByLens = lensPath([1, 'usedBy'])
+    const currentTabLens = lensPath(['active'])
 
     const updateVideoState = (state, id) => {
         const videoState = interpret(videoMachine, id)
@@ -26,16 +27,15 @@ const actions = ( () => {
         if (status === 'offline') { // save file to local storage
             const onlineStatusMsg = 'App is offline'
             return [
-                { ...state, status, onlineStatusMsg },
+                resetAfterSaveUploadMedia({ ...state, status, onlineStatusMsg }),
                 effects.addToLocalStoreFx(images, recordings)
             ]
         } else {
-            const fileType = IMAGE_STATE.INIT
             const onlineStatusMsg = 'App is online'
             const uploadingStatusMsg = 'Uploading files(s), please wait ...'
             return [
                 { ...state, status, uploadingStatusMsg, onlineStatusMsg },
-                effects.uploadFx(httpSuccessMsg, httpFailMsg, fileType, concat(images, recordings), '')
+                effects.uploadFx(httpSuccessMsg, httpFailMsg, concat(images, recordings), '')
             ]
         }
     }
@@ -68,29 +68,34 @@ const actions = ( () => {
         const tabs = set(videoUseByLens, IMAGE_STATE.INIT, state.tabs)
         return U.resetImage({ ...state, tabs }, IMAGE_STATE.INIT)
     }
-    const httpSuccessMsg = (state, { request, status }) => {
+    const resetAfterSaveUploadMedia = (state) => {
+        const recordingStatusMsg = 'Not Recording'
+        const uploadingStatusMsg = 'Successfully saved'
+        const recordings = []
+        const audioUrl = []
+        const images = []
+        const resetAudioTab = set(audioUseByLens, AUDIO_STATE.INIT)
+        const resetVideoTab = set(videoUseByLens, IMAGE_STATE.INIT)
+        const tabs = pipe(
+            resetAudioTab,
+            resetVideoTab
+        )(state.tabs)
+        const viewCurrentTab = (tab) => view(currentTabLens)(tab)
+        const currentTab = filter(viewCurrentTab, tabs)[0]
+        const buttons = U.resetButtonState(state.buttons, currentTab.usedBy)
+        return { ...state, uploadingStatusMsg, buttons, recordings, images, audioUrl, recordingStatusMsg, tabs }
+    }
+    const httpSuccessMsg = (state, { request }) => {
         switch (request) {
         case effects.HTTP_REQUESTS.UPLOAD_FILES: {
-            const uploadingStatusMsg = 'Successfully uploaded'
-            const recordingStatusMsg = 'Not Recording'
-            const buttons = U.resetButtonState(state.buttons, status)
-            const recordings = []
-            const audioUrl = []
-            const images = []
-            const audioUseByLensPartial = set(audioUseByLens, AUDIO_STATE.INIT)
-            const videoUseByLensPartial = set(videoUseByLens, IMAGE_STATE.INIT)
-            const resetSelectedTab = U.selectTab(state, 'videoTab')
-            const tabs = pipe(
-                videoUseByLensPartial,
-                audioUseByLensPartial
-            )(resetSelectedTab.tabs)
             return [
-                { ...resetSelectedTab, uploadingStatusMsg, buttons, recordings, images, audioUrl, recordingStatusMsg, tabs },
+                resetAfterSaveUploadMedia(state),
                 effects.removeFromLocalStoreFx()
             ]
         }
         }
-        return U.selectTab(state, 'videoTab')
+        const tabs = selectTab(state, 'videoTab')
+        return { ...state, tabs }
     }
     const httpFailMsg = (state, { request, error }) => {
         switch (request) {
@@ -99,11 +104,23 @@ const actions = ( () => {
             return { ...state, uploadingStatusMsg }
         }
         }
-        return U.selectTab(state, 'videoTab')
+        const tabs = selectTab(state, 'videoTab')
+        return { ...state, tabs }
     }
     const updateStatus = (state, data) => {
-        const { status, images, recordings } = data
+        const { status } = data
+        const images = pathOr(state.images, ['images'], data)
+        const recordings = pathOr(state.images, ['recordings'], data)
         return manageUpload(state, status, images, recordings)
+    }
+    const selectTab = (state, id) => {
+        const updateTabStatus = curry((id, tab) => {
+            const active = tab.id === id
+            return { ...tab, active }
+        })(id)
+        const tabs = map(updateTabStatus, state.tabs)
+        const buttons = U.resetButtonState(state.buttons, tabs.find((element) => element.id === id).usedBy)
+        return { ...state, tabs, buttons }
     }
     const uploadFiles = (state) => {
         const { status, images, recordings } = state
@@ -167,8 +184,8 @@ const actions = ( () => {
             { 'id': 'recordAudio', 'active': false, 'action': recordAudio, 'txt': 'Start Recording', 'usedBy': AUDIO_STATE.INIT },
         ],
         'tabs': [
-            { 'id': 'videoTab', 'active': true, 'action': [U.selectTab, targetId], 'tabName': 'videoSelection', 'txt': 'Take a Picture', 'usedBy': IMAGE_STATE.INIT },
-            { 'id': 'audioTab', 'active': false, 'action': [U.selectTab, targetId], 'tabName': 'audioSelection', 'txt': 'Make a Recording', 'usedBy': AUDIO_STATE.INIT }
+            { 'id': 'videoTab', 'active': true, 'action': [selectTab, targetId], 'tabName': 'videoSelection', 'txt': 'Take a Picture', 'usedBy': IMAGE_STATE.INIT },
+            { 'id': 'audioTab', 'active': false, 'action': [selectTab, targetId], 'tabName': 'audioSelection', 'txt': 'Make a Recording', 'usedBy': AUDIO_STATE.INIT }
         ],
         'installAsPwa': installAsPwa,
         'installed': true,

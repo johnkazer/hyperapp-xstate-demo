@@ -38,7 +38,7 @@ const effects = (() => {
         }
     ]
     function processExternalRequest (dispatch,  command) {
-        const { request, files, success, status, fail, ACCESS_TOKEN } = command
+        const { request, files, success, fail, ACCESS_TOKEN } = command
         const submitFile = (rawFile) => {
             // not yet impl
             // just move to next state or file
@@ -46,7 +46,7 @@ const effects = (() => {
             // https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/auth/index.html
             // and upload
             // https://github.com/dropbox/dropbox-sdk-js/blob/master/examples/javascript/upload/index.html
-            return dispatch(success, { request, status })
+            return dispatch(success, { request })
         }
 
         switch (request) {
@@ -56,15 +56,14 @@ const effects = (() => {
         }
         }
     }
-    const upload = (dispatch, { success, fail, status, files, ACCESS_TOKEN }) => {
-        processExternalRequest(dispatch, { request: HTTP_REQUESTS.UPLOAD_FILES, success, fail, status, files, ACCESS_TOKEN })
+    const upload = (dispatch, { success, fail, files, ACCESS_TOKEN }) => {
+        processExternalRequest(dispatch, { request: HTTP_REQUESTS.UPLOAD_FILES, success, fail, files, ACCESS_TOKEN })
     }
-    const uploadFx = (httpSuccess, httpFail, status, files, ACCESS_TOKEN) => [
+    const uploadFx = (httpSuccess, httpFail, files, ACCESS_TOKEN) => [
         upload,
         {
             success: httpSuccess,
             fail: httpFail,
-            status,
             files: files,
             ACCESS_TOKEN: ACCESS_TOKEN
         }

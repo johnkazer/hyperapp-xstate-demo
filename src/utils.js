@@ -1,14 +1,5 @@
 import { map, curry } from 'ramda'
 const U = (function (){
-    const selectTab = (state, id) => {
-        const updateTabStatus = curry((id, tab) => {
-            const active = tab.id === id
-            return { ...tab, active }
-        })(id)
-        const tabs = map(updateTabStatus, state.tabs)
-        const buttons = resetButtonState(state.buttons, tabs.find((element) => element.id === id).usedBy)
-        return { ...state, tabs, buttons }
-    }
     function resetImage (state, newStatus) {
         const images = []
         const uploadingStatusMsg = 'Not uploading'
@@ -39,7 +30,6 @@ const U = (function (){
         return buttons
     }
     return Object.freeze({
-        selectTab,
         resetImage,
         resetAudio,
         resetButtonState
