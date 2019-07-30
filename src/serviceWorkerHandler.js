@@ -39,7 +39,6 @@
             } catch (e) {
                 return console.error('ServiceWorker failed', e);
             }
-            return true
         }
       
         const pushStatus = new Promise((resolve, reject) => {
@@ -50,14 +49,13 @@
                 if (result !== 'granted') {
                     el.classList.add('inactive');
                     el.textContent = 'Push blocked';
-                    reject();
                 } else {
                     el.classList.add('active');
                     el.textContent = 'Push active';
-                    resolve(true);
                 }
-                return document.body.appendChild(el);
-            });
+                document.body.appendChild(el)
+                return result
+            })
         });
         return Object.freeze({
             registerServiceWorker
