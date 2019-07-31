@@ -19,10 +19,28 @@ const actions = ( () => {
     const currentTabLens = lensPath(['active'])
 
     const updateVideoState = (state, id) => {
-        const videoState = interpret(videoMachine, id)
+        //const videoState = interpret(videoMachine, id)
+        const previousState = pathOr('connected', ['videoState', 'value'], state)
+        const videoState = videoMachineX.transition(previousState, id)
+        const requests = runActions(state, videoState, id)
+        if(requests.length === 0) return state // Needs cleaning up!
+        else if(requests.length === 1) return { ...requests[0], videoState }
+        else if(requests.length === 2) return [
+            { ...requests[0], videoState },
+            requests[1]
+        ]
         return { ...state, videoState }
     }
     
+    const runActions = (state, calcState, evtObj) => { // make recursive
+        let requests = []
+        calcState.actions.forEach(action => {
+            const stateChangeRequest = action.exec(state,evtObj)
+            requests = concat(requests, stateChangeRequest)
+        });
+        return requests
+    };
+
     const manageUpload = (state, status, images, recordings) => {
         if (status === 'offline') { // save file to local storage
             const onlineStatusMsg = 'App is offline'
@@ -162,6 +180,12 @@ const actions = ( () => {
         state,
         effects.startRecordingFx(recordingStarted)
     ]
+
+    const videoMachineX = videoMachine.withConfig({
+        actions: {
+            captureImage
+        }
+    })
 
     const initialStateObj = {
         'title': 'Hyperapp demo', // pug-vdom expects at least a 'title' by default

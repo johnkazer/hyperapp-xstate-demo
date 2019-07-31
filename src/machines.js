@@ -9,7 +9,10 @@ export const videoMachine = Machine ({
     states: {
         connected: {
             on: {
-                captureImage: 'capture'
+                captureImage: {
+                    target: 'capture',
+                    actions: ['captureImage']
+                }
             }
         },
         capture: {
