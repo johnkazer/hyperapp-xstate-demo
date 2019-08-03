@@ -1,14 +1,13 @@
-import actions from './actions.js'
-import requestHandler from './handleRequests.js'
-import effects from './effects.js'
+import * as actions from './actions.js'
+import * as requestHandler from './handleRequests.js'
 import { map } from 'ramda'
 
 const initMedia = (dispatch, { action }) => {
     window.addEventListener('load', (event) => {
         setTimeout(() => { // ensure call setup after load has really finished
             try {
-                requestHandler.camera.setup()
-                requestHandler.audio.setup(action, dispatch)
+                requestHandler.setupVideo()
+                requestHandler.setupAudio(action, dispatch)
             } catch(e) {
                 return alert(e);
             }
@@ -17,8 +16,8 @@ const initMedia = (dispatch, { action }) => {
 }
 const onlineStatus = (dispatch, { action }) => {
     window.addEventListener('online', async () => {
-        const images = await requestHandler.offlineSupport.findLocalItems('jpeg');
-        const recordings = await requestHandler.offlineSupport.findLocalItems('webm');
+        const images = await requestHandler.findLocalItems('jpeg');
+        const recordings = await requestHandler.findLocalItems('webm');
         return dispatch(action, { status: 'online', images, recordings })
     });
 

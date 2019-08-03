@@ -1,12 +1,12 @@
 import { app, h } from 'hyperapp'
 import { pugToView } from "./pug-to-view"
-import actions from './actions.js'
+import { initialStateObj } from './actions.js'
 import { subs } from './subscriptions.js'
-import { serviceWorkerHandler } from './serviceWorkerHandler.js'
+import { registerServiceWorker } from './serviceWorkerHandler.js'
 
 if ('serviceWorker' in navigator) {
     try {
-        serviceWorkerHandler.registerServiceWorker();
+        registerServiceWorker();
     } catch (e) {
         console.error(e);
     }
@@ -15,7 +15,7 @@ if ('serviceWorker' in navigator) {
 const view = pugToView(h)
 const node = document.getElementById('app')
 app({
-    init: actions.initialStateObj,
+    init: initialStateObj,
     view: view,
     node: node,
     subscriptions: subs
