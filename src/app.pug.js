@@ -86,7 +86,7 @@ function render(context, h) {
     var n11 = h('div', props, n11Child)
     n10Child.push(n11)
     var n18Child = []
-    n18Child.push(displayButtons('videoTab'));
+    n18Child.push(createVideoButtons());
     var props = {attributes: runtime.compileAttrs([{name:'class', val: 'align-centre'}], [])};
     if (props.attributes.id) props.key = props.attributes.id;
     var n18 = h('div', props, n18Child)
@@ -100,7 +100,7 @@ function render(context, h) {
     var n20 = h('p', props, n20Child)
     n19Child.push(n20)
     var n21Child = []
-    n21Child.push(displayButtons('audioTab'));
+    n21Child.push(createAudioButtons());
     var props = {attributes: runtime.compileAttrs([{name:'class', val: 'align-centre'}], [])};
     if (props.attributes.id) props.key = props.attributes.id;
     var n21 = h('div', props, n21Child)
@@ -141,12 +141,12 @@ function render(context, h) {
     }
     return n26Child
   }
-  function displayButtons(__block) {
+  function createAudioButtons(__block) {
     var n29Child = []
-    var v30 = buttons
+    var v30 = audioButtons
     Object.keys(v30).forEach(function (k31) {
       var button = v30[k31]
-      var display = button.active ? 'block' : 'none'
+      var display = button.active === audioState.value ? 'block' : 'none'
       var n32Child = []
       n32Child = n32Child.concat(button.txt)
       var props = {attributes: runtime.compileAttrs([{name:'class', val: 'btn'},{name:'class', val: 'btn-primary'},{name:'id', val: button.id},{name:'onclick', val: button.action},{name:'style', val: {display: display}}], [])};
@@ -155,6 +155,21 @@ function render(context, h) {
       n29Child.push(n32)
     }.bind(this))
     return n29Child
+  }
+  function createVideoButtons(__block) {
+    var n33Child = []
+    var v34 = videoButtons
+    Object.keys(v34).forEach(function (k35) {
+      var button = v34[k35]
+      var display = button.active === videoState.value ? 'block' : 'none'
+      var n36Child = []
+      n36Child = n36Child.concat(button.txt)
+      var props = {attributes: runtime.compileAttrs([{name:'class', val: 'btn'},{name:'class', val: 'btn-primary'},{name:'id', val: button.id},{name:'onclick', val: button.action},{name:'style', val: {display: display}}], [])};
+      if (props.attributes.id) props.key = props.attributes.id;
+      var n36 = h('button', props, n36Child)
+      n33Child.push(n36)
+    }.bind(this))
+    return n33Child
   }
   var props = {attributes: runtime.compileAttrs([], [])};
   if (props.attributes.id) props.key = props.attributes.id;

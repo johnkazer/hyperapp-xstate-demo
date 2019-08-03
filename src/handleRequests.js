@@ -136,7 +136,7 @@ const requestHandler = (function () {
         const mimeType = 'audio/webm';
         let chunks = [];
         let returnDataCB
-        const setup = function (action, dispatch, readyStatus) {
+        const setup = function (action, dispatch) {
             if ('MediaRecorder' in window) {
                 try {
                     navigator.mediaDevices.getUserMedia({
@@ -161,7 +161,6 @@ const requestHandler = (function () {
                                     recording = reader.result;
                                     chunks = [];
                                     dispatch(action, {
-                                        status: readyStatus,
                                         recordings: [recording],
                                         url: audioURL
                                     })

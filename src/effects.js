@@ -8,12 +8,10 @@ const effects = (() => {
         STOPPED: 'AUDIO_STOPPED',
         READY: 'AUDIO_READY'
     }
-    const IMAGE_STATE = {
-        INIT: 'IMAGE_INIT',
-        TAKEN: 'IMAGE_TAKEN'
-    }
     const HTTP_REQUESTS = {
-        UPLOAD_FILES: 'UPLOAD_FILES'
+        UPLOAD_VIDEO: 'UPLOAD_VIDEO',
+        UPLOAD_AUDIO: 'UPLOAD_AUDIO',
+        UPLOAD_STORAGE: 'UPLOAD_STORAGE'
     }
     async function installAsPwa(dispatch, { deferredPrompt, pwaResponseHandler }) {
         if (deferredPrompt) {
@@ -50,30 +48,33 @@ const effects = (() => {
         }
 
         switch (request) {
-        case HTTP_REQUESTS.UPLOAD_FILES: {
+        case HTTP_REQUESTS.UPLOAD_AUDIO:
+        case HTTP_REQUESTS.UPLOAD_VIDEO:
+        case HTTP_REQUESTS.UPLOAD_STORAGE: {
             if (!Array.isArray(files)) return
             return map(submitFile, files)
         }
         }
     }
-    const upload = (dispatch, { success, fail, files, ACCESS_TOKEN }) => {
-        processExternalRequest(dispatch, { request: HTTP_REQUESTS.UPLOAD_FILES, success, fail, files, ACCESS_TOKEN })
+    const upload = (dispatch, { success, fail, files, request, ACCESS_TOKEN }) => {
+        processExternalRequest(dispatch, { request, success, fail, files, ACCESS_TOKEN })
     }
-    const uploadFx = (httpSuccess, httpFail, files, ACCESS_TOKEN) => [
+    const uploadFx = (httpSuccess, httpFail, files, request, ACCESS_TOKEN) => [
         upload,
         {
             success: httpSuccess,
             fail: httpFail,
             files: files,
+            request: request,
             ACCESS_TOKEN: ACCESS_TOKEN
         }
     ]
     const takePicture = (dispatch, { action }) => {
         const image = requestHandler.camera.takeBase64Photo({ type: 'jpeg', quality: 0.8 }).base64
         if (image) {
-            dispatch(action, { tabStatus: IMAGE_STATE.TAKEN, images: [image] })
+            dispatch(action, { images: [image] })
         } else {
-            dispatch(action, { tabStatus: IMAGE_STATE.INIT, images: [] })
+            dispatch(action, { images: [] })
         }
     }
     const takePictureFx = (action) => [
@@ -100,7 +101,7 @@ const effects = (() => {
         try {
             requestHandler.audio.stop() // triggers event handler on the audio element
         } catch (e) {
-            dispatch(action, { status: AUDIO_STATE.INIT })
+            dispatch(action)
         }
     }
     const stopRecordingFx = (action) => [
@@ -109,18 +110,21 @@ const effects = (() => {
             action
         }
     ]
-    const addToLocalStore = (dispatch, { images, recordings }) => {
-        requestHandler.offlineSupport.storeLocalItems(images, 'jpeg')
-        requestHandler.offlineSupport.storeLocalItems(recordings, 'webm')
+    const addToLocalStore = async (dispatch, { action, request, images, recordings }) => {
+        const imageStored = await requestHandler.offlineSupport.storeLocalItems(images, 'jpeg')
+        const recordingStored = await requestHandler.offlineSupport.storeLocalItems(recordings, 'webm')
+        dispatch(action, { request, imageStored, recordingStored })
     }
-    const addToLocalStoreFx = (images, recordings) => [
+    const addToLocalStoreFx = (action, request, images, recordings) => [
         addToLocalStore,
         {
+            action,
+            request,
             images,
             recordings
         }
     ]
-    const removeFromLocalStore = (dispatch, config = {}) => {
+    const removeFromLocalStore = (dispatch) => {
         requestHandler.offlineSupport.removeLocalItems()
     }
     const removeFromLocalStoreFx = () => [
@@ -137,7 +141,6 @@ const effects = (() => {
         stopRecordingFx,
         uploadFx,
         AUDIO_STATE,
-        IMAGE_STATE,
         HTTP_REQUESTS
     })
 })()

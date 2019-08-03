@@ -2,12 +2,9 @@ import { Machine } from 'xstate'
 
 export const videoMachine = Machine ({
     id: 'videoMachine',
-    context: {
-        statusMessage: ''
-    },
-    initial: 'connected',
+    initial: 'videoState',
     states: {
-        connected: {
+        videoState: {
             on: {
                 captureImage: {
                     target: 'capture',
@@ -18,25 +15,83 @@ export const videoMachine = Machine ({
         capture: {
             on: {
                 success: 'captured',
-                fail: 'connected'
+                fail: 'videoState'
             }
         },
         captured: {
             on: {
-                uploadImage: 'upload',
-                discardImage: 'delete'
+                uploadImage: {
+                    target: 'upload',
+                    actions: ['uploadImage']
+                },
+                discardImage: {
+                    target: 'videoState',
+                    actions: ['discardImage']
+                }
             }
         },
         upload: {
             on: {
-                success: 'delete',
-                fail: 'captured'
+                uploadSuccess: {
+                    target: 'videoState',
+                    actions: ['discardImage']
+                },
+                uploadFail: 'captured'
+            }
+        }
+    }
+})
+export const audioMachine = Machine({
+    id: 'audioMachine',
+    initial: 'audioState',
+    states: {
+        audioState: {
+            on: {
+                recordAudio: {
+                    target: 'startRecording',
+                    actions: ['recordAudio']
+                }
             }
         },
-        delete: {
+        startRecording: {
             on: {
-                deleted: 'connected',
-                fail: 'captured'
+                success: 'recording',
+                fail: 'audioState'
+            }
+        },
+        recording: {
+            on: {
+                stopAudio: {
+                    target: 'stopped',
+                    actions: ['stopAudio']
+                }
+            }
+        },
+        stopped: {
+            on: {
+                success: 'recorded',
+                fail: 'audioState'
+            }
+        },
+        recorded: {
+            on: {
+                uploadAudio: {
+                    target: 'upload',
+                    actions: ['uploadAudio']
+                },
+                deleteAudio: {
+                    target: 'audioState',
+                    actions: ['deleteAudio']
+                }
+            }
+        },
+        upload: {
+            on: {
+                uploadSuccess: {
+                    target: 'audioState',
+                    actions: ['deleteAudio']
+                },
+                uploadFail: 'recorded'
             }
         }
     }

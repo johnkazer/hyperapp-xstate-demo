@@ -19,11 +19,11 @@ div
                     img(src=img alt="captured" height="200")
             br
         div.align-centre
-            +displayButtons('videoTab')
+            +createVideoButtons()
     +displayTab(showTab, 'audioSelection')
         p #{recordingStatusMsg}
         div.align-centre
-            +displayButtons('audioTab')
+            +createAudioButtons()
         if audioUrl.length
             each url in audioUrl
                 audio(src = url, controls='controls' )

@@ -5,7 +5,11 @@ mixin displayTab(showTab, tabName)
     else
         div.tabContent(id=tabName style={display: 'none'})
             block
-mixin displayButtons()
-    each button in buttons
-        - var display = button.active ? 'block' : 'none'
+mixin createAudioButtons()
+    each button in audioButtons
+        - var display = button.active === audioState.value ? 'block' : 'none'
+        button.btn.btn-primary(id=button.id onclick=button.action style={display: display}) #{button.txt}
+mixin createVideoButtons()
+    each button in videoButtons
+        - var display = button.active === videoState.value ? 'block' : 'none'
         button.btn.btn-primary(id=button.id onclick=button.action style={display: display}) #{button.txt}

@@ -3,12 +3,12 @@ import requestHandler from './handleRequests.js'
 import effects from './effects.js'
 import { map } from 'ramda'
 
-const initMedia = (dispatch, { action, status }) => {
+const initMedia = (dispatch, { action }) => {
     window.addEventListener('load', (event) => {
         setTimeout(() => { // ensure call setup after load has really finished
             try {
                 requestHandler.camera.setup()
-                requestHandler.audio.setup(action, dispatch, status)
+                requestHandler.audio.setup(action, dispatch)
             } catch(e) {
                 return alert(e);
             }
@@ -36,11 +36,10 @@ const handleInstallState = (dispatch, { action }) => {
         return dispatch(action, { deferredPrompt, installed })
     });
 }
-const initMediaSub = ({ action, status }) => [
+const initMediaSub = ({ action }) => [
     initMedia,
     {
-        action,
-        status
+        action
     }
 ]
 const onlineStatusSub = ({ action }) => [
@@ -57,11 +56,10 @@ const handleInstallStateSub = ({ action }) => [
 ]
 export const subs = (state) => [
     initMediaSub({
-        action: actions.audioReady,
-        status: effects.AUDIO_STATE.READY
+        action: actions.audioReady
     }),
     onlineStatusSub({
-        action: actions.updateStatus
+        action: actions.updateOnlineStatus
     }),
     handleInstallStateSub({
         action: actions.handleInstallState
