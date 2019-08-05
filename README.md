@@ -33,12 +33,26 @@ Action -> [ State change -> Possible Actions ] -> Action...
 
 There are two state machines in the demo, one to manage taking photo's and the other for recordings.
 
+I find the [visualiser](https://statecharts.github.io/xstate-viz/) useful, as it bridges the gap between code and seeing a working app. In the former you can't share with non-coders when discussing core business logic. In the latter you don't get a feel for what the previous or potential 'next steps' are for the app. Also you need to have created some UI that's in-sync with the code.
+
 ## What's next?
 
 Other aspects of the app may be suitable for state machines, including upload, online/offline state and PWA installation. There is an interesting boundary of responsibility between Hyperapp and XState that this demo has only just started to explore.
 
-Where and how should state be managed?
+### _Where and how should state be managed?_
 
-What role components?
+There are three valid places, which might get confusing
 
-How many machines do you need?
+* XState machine current value
+* XState machine context
+* Hyperapp state
+
+In the current example, the online/offline status is maintained in Hyperapp's state and is managed by a subscription event handler. There is a 'hidden' decision point when the user clicks 'Save Photo'. The uploadImage XState change is triggered. However, behaviour varies according to online/offline status - the file is either uploaded via (dummy) http or saved locally. In either case, Hyperapp triggers an XState change with 'uploadSuccess'.
+
+### _What role components?_
+
+Hyperapp can be used as a component pattern, although it's not an approach I'm familiar with yet. In addition, I can see how a specific state machine could be associated with a component - possibly with internal state defined in the context object.
+
+### _How many machines do you need?_
+
+For an app I think it is most useful to maintain a set of state machines, which appear as pseudo components - logical components if you will. If a state machine is too complicated it suggests either that the UI is too complicated or that you will have problems maintaining the machine.
