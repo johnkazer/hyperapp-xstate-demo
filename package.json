@@ -4,14 +4,17 @@
   "description": "A hyperapp demo using xstate and PWA",
   "main": "main.js",
   "scripts": {
-    "start": "node ./compilePug.js && cpx ./src/sw.js ./dist && cpx ./src/default.html ./dist && parcel ./src/index.html"
+    "start": "node ./compilePug.js && cpx ./src/sw.js ./dist && cpx ./src/default.html ./dist && parcel ./src/index.html",
+    "cypress:open": "cypress open"
   },
   "author": "John Kazer",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.4.4",
+    "@xstate/graph": "^0.2.1",
     "cpx": "^1.5.0",
+    "cypress": "^3.4.1",
     "parcel": "^1.12.3",
     "virtual-dom": "^2.1.1"
   },
