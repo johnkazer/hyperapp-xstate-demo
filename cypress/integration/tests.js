@@ -59,7 +59,7 @@ it('tests each state path with map', () => {
     }, videoStateList)
 })
 */
-it('tests each state path with compose', () => {
+it('tests each state path', () => {
 	cy.visit('http://localhost:1234')
 	const listOfVideoPaths = listOfPaths(selectSimpleVideoPaths)
 	const listOfAudioPaths = listOfPaths(selectSimpleAudioPaths)
