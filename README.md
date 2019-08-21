@@ -1,3 +1,5 @@
+Read and comment on the README content [here](https://dev.to/johnkazer/use-maths-not-process-for-reliable-web-apps-1bmm) and for a stronger focus on app dev process implications, [go here](https://dev.to/johnkazer/revist-the-waterfall-process-but-this-time-with-maths-27cn).
+
 A combination of functional front-end JavaScript and state machines leads to unit and business logic tests which can approach mathematical proof. [Watch](https://github.com/johnkazer/hyperapp-xstate-demo/blob/xstate/cypress/videos/tests.js.mp4) as Cypress steps through your app, using an auto-generated graph of the state machine that defines the app's possible UI actions and transitions.
 
 Disclaimer - it might help to have some knowledge of [Hyperapp](https://github.com/jorgebucaran/hyperapp) actions and events plus [state machines](https://xstate.js.org/docs/), as these are big subjects mostly out of scope of this README.
