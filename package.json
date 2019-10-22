@@ -15,7 +15,7 @@
     "@xstate/graph": "^0.2.1",
     "cpx": "^1.5.0",
     "cypress": "^3.4.1",
-    "parcel": "^1.12.3",
+    "parcel": "^1.12.4",
     "virtual-dom": "^2.1.1"
   },
   "dependencies": {
