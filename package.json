@@ -10,21 +10,21 @@
   "author": "John Kazer",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/core": "^7.11.4",
+    "@babel/plugin-transform-runtime": "^7.11.0",
     "@xstate/graph": "^0.2.1",
     "cpx": "^1.5.0",
-    "cypress": "^3.4.1",
+    "cypress": "^3.8.3",
     "parcel": "^1.12.4",
     "virtual-dom": "^2.1.1"
   },
   "dependencies": {
-    "@babel/runtime": "^7.4.5",
+    "@babel/runtime": "^7.11.2",
     "hyperapp": "2.0.0",
     "idb-keyval": "^3.2.0",
     "pug": "^2.0.4",
-    "pug-vdom": "^1.0.12",
+    "pug-vdom": "^1.1.2",
     "ramda": "^0.26.1",
-    "xstate": "^4.6.7"
+    "xstate": "^4.13.0"
   }
 }
