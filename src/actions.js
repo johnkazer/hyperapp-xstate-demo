@@ -11,10 +11,6 @@ const STATE_MACHINES = {
     AUDIO_MACHINE: 'audioMachine'
 }
 
-const targetValue = event => event.target.value
-const targetProp = prop => event => event.target[prop]
-const targetId = targetProp('id')
-
 const processNewState = (state, { machineState, machineName, machine, id }) => {
     const previousState = pathOr(machineState, [machineState, 'value'], state)
     const newMachineState = machine.transition(previousState, id)
