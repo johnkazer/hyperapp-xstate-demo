@@ -11,7 +11,7 @@ div
             button.tabLinks(id=button.id onclick=button.action) #{button.txt}
             if (button.active)
                 - showTab = button.tabName
-    +displayTab(showTab, 'videoSelection')
+    div.tabContent.surround(id='videoSelection' style=showTab === 'videoSelection' ? {display: 'block'} : {display: 'none'})
         div.align-centre
             video(autoPlay playsInline muted id="webcam" width="100%" height="200")
             #imageCanvas.imageCanvas
@@ -19,13 +19,16 @@ div
                     img(src=img alt="captured" height="200")
             br
         div.align-centre
-            +createVideoButtons()
-    +displayTab(showTab, 'audioSelection')
+            each button in buttons
+                - var display = button.active ? 'block' : 'none'
+                button.btn.btn-primary(id=button.id onclick=button.action style={display: display}) #{button.txt}
+    div.tabContent.surround(id='audioSelection' style=showTab === 'audioSelection' ? {display: 'block'} : {display: 'none'})
         p #{recordingStatusMsg}
         div.align-centre
-            +createAudioButtons()
+            each button in buttons
+                - var display = button.active ? 'block' : 'none'
+                button.btn.btn-primary(id=button.id onclick=button.action style={display: display}) #{button.txt}
         if audioUrl.length
             each url in audioUrl
                 audio(src = url, controls='controls' )
                 a(href=url)
-    include mixins.pug
