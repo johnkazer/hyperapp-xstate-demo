@@ -3,7 +3,7 @@ A [Hyperapp](https://hyperapp.dev/) demo, which implements a simple multi-media 
 
 The master branch just uses Hyperapp, whilst the xstate branch modifies the app to use XState state machines.
 
-Note that unlike most Hyperapp implementations, this app uses Pug to render HTML.
+Note that unlike most Hyperapp implementations, this app uses Pug to render HTML (and also a temporarily local version of pug-vdom to support textNodes in Hyperapp).
 
 ## Why?
 
