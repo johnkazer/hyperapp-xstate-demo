@@ -7,10 +7,6 @@ const HTTP_REQUESTS = effects.HTTP_REQUESTS
 const AUDIO_STATE = effects.AUDIO_STATE
 const IMAGE_STATE = effects.IMAGE_STATE
 
-const targetValue = event => event.target.value
-const targetProp = prop => event => event.target[prop]
-const targetId = targetProp('id')
-
 const videoUseByLens = lensPath([0, 'usedBy'])
 const audioUseByLens = lensPath([1, 'usedBy'])
 const currentTabLens = lensPath(['active'])
@@ -56,7 +52,7 @@ const captureImage = (state, event) => {
         effects.takePictureFx(processImage)
     ]
 }
-const discardImage = (state, value) => {
+const discardImage = (state, event) => {
     const tabs = set(videoUseByLens, IMAGE_STATE.INIT, state.tabs)
     return U.resetImage({ ...state, tabs }, IMAGE_STATE.INIT)
 }
@@ -105,7 +101,8 @@ export const updateStatus = (state, data) => {
     const recordings = pathOr(state.images, ['recordings'], data)
     return manageUpload(state, status, images, recordings)
 }
-const selectTab = (state, id) => {
+const selectTab = (state, event) => {
+    const id = event.target.id
     const updateTabStatus = curry((id, tab) => {
         const active = tab.id === id
         return { ...tab, active }
@@ -114,11 +111,11 @@ const selectTab = (state, id) => {
     const buttons = U.resetButtonState(state.buttons, tabs.find((element) => element.id === id).usedBy)
     return { ...state, tabs, buttons }
 }
-const uploadFiles = (state) => {
+const uploadFiles = (state, event) => {
     const { status, images, recordings } = state
     return manageUpload(state, status, images, recordings)
 }
-const deleteAudio = (state, value) => {
+const deleteAudio = (state, event) => {
     const tabs = set(audioUseByLens, AUDIO_STATE.INIT, state.tabs)
     return U.resetAudio({ ...state, tabs }, AUDIO_STATE.INIT)
 }
@@ -132,7 +129,7 @@ export const audioReady = (state, { status, url, recordings }) => {
         return U.resetAudio(state, AUDIO_STATE.INIT)
     }
 }
-const stopAudio = (state, value) => {
+const stopAudio = (state, event) => {
     const tabs = set(audioUseByLens, AUDIO_STATE.READY, state.tabs)
     return [
         {
@@ -150,7 +147,7 @@ const recordingStarted = (state, response) => {
         return U.resetAudio(state, AUDIO_STATE.INIT)
     }
 }
-const recordAudio = (state, value) => [
+const recordAudio = (state, event) => [
     state,
     effects.startRecordingFx(recordingStarted)
 ]
@@ -176,8 +173,8 @@ export const initialStateObj = {
         { 'id': 'recordAudio', 'active': false, 'action': recordAudio, 'txt': 'Start Recording', 'usedBy': AUDIO_STATE.INIT },
     ],
     'tabs': [
-        { 'id': 'videoTab', 'active': true, 'action': [selectTab, targetId], 'tabName': 'videoSelection', 'txt': 'Take a Picture', 'usedBy': IMAGE_STATE.INIT },
-        { 'id': 'audioTab', 'active': false, 'action': [selectTab, targetId], 'tabName': 'audioSelection', 'txt': 'Make a Recording', 'usedBy': AUDIO_STATE.INIT }
+        { 'id': 'videoTab', 'active': true, 'action': selectTab, 'tabName': 'videoSelection', 'txt': 'Take a Picture', 'usedBy': IMAGE_STATE.INIT },
+        { 'id': 'audioTab', 'active': false, 'action': selectTab, 'tabName': 'audioSelection', 'txt': 'Make a Recording', 'usedBy': AUDIO_STATE.INIT }
     ],
     'installAsPwa': installAsPwa,
     'installed': true
