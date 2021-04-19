@@ -1,4 +1,4 @@
-import { app, h } from 'hyperapp'
+import { app, h, text } from 'hyperapp'
 import { pugToView } from "./pug-to-view"
 import { initialStateObj } from './actions.js'
 import { subs } from './subscriptions.js'
@@ -12,7 +12,7 @@ if ('serviceWorker' in navigator) {
     }
 }
 
-const view = pugToView(h)
+const view = pugToView(h, text)
 const node = document.getElementById('app')
 app({
     init: initialStateObj,
