@@ -38,8 +38,14 @@ const updateState = (state, id, type) => {
     }
     return state
 }
-const updateVideoState = (state, id) => updateState(state, id, STATE_MACHINES.VIDEO_MACHINE)
-const updateAudioState = (state, id) => updateState(state, id, STATE_MACHINES.AUDIO_MACHINE)
+const updateVideoState = (state, event) => {
+    const id = event.target.id
+    return updateState(state, id, STATE_MACHINES.VIDEO_MACHINE)
+}
+const updateAudioState = (state, event) => {
+    const id = event.target.id
+    return updateState(state, id, STATE_MACHINES.AUDIO_MACHINE)
+}
 const runActions = (state, calcState, evtObj) => { // make recursive or map
     let requests = []
     calcState.actions.forEach(action => {
@@ -152,7 +158,8 @@ export const updateOnlineStatus = (state, data) => {
     return manageUpload(state, status, images, recordings, HTTP_REQUESTS.UPLOAD_STORAGE)
     // only want to upload files from storage
 }
-const selectTab = (state, id) => {
+const selectTab = (state, event) => {
+    const id = event.target.id
     const updateTabStatus = curry((id, tab) => {
         const active = tab.id === id
         return { ...tab, active }
@@ -231,19 +238,19 @@ export const initialStateObj = {
     'recordings': [],
     'audioUrl': [],
     'videoButtons': [
-        { 'id': 'uploadImage', 'active': 'captured', 'action': [updateVideoState, targetId], 'txt': 'Save Photo' },
-        { 'id': 'discardImage', 'active': 'captured', 'action': [updateVideoState, targetId], 'txt': 'Delete Photo' },
-        { 'id': 'captureImage', 'active': 'videoState', 'action': [updateVideoState, targetId], 'txt': 'Take Picture'  }
+        { 'id': 'uploadImage', 'active': 'captured', 'action': updateVideoState, 'txt': 'Save Photo' },
+        { 'id': 'discardImage', 'active': 'captured', 'action': updateVideoState, 'txt': 'Delete Photo' },
+        { 'id': 'captureImage', 'active': 'videoState', 'action': updateVideoState, 'txt': 'Take Picture'  }
     ],
     'audioButtons': [
-        { 'id': 'uploadAudio', 'active': 'recorded', 'action': [updateAudioState, targetId], 'txt': 'Save Recording' },
-        { 'id': 'deleteAudio', 'active': 'recorded', 'action': [updateAudioState, targetId], 'txt': 'Delete Recording' },
-        { 'id': 'stopAudio', 'active': 'recording', 'action': [updateAudioState, targetId], 'txt': 'Stop' },
-        { 'id': 'recordAudio', 'active': 'audioState', 'action': [updateAudioState, targetId], 'txt': 'Start Recording' },
+        { 'id': 'uploadAudio', 'active': 'recorded', 'action': updateAudioState, 'txt': 'Save Recording' },
+        { 'id': 'deleteAudio', 'active': 'recorded', 'action': updateAudioState, 'txt': 'Delete Recording' },
+        { 'id': 'stopAudio', 'active': 'recording', 'action': updateAudioState, 'txt': 'Stop' },
+        { 'id': 'recordAudio', 'active': 'audioState', 'action': updateAudioState, 'txt': 'Start Recording' },
     ],
     'tabs': [
-        { 'id': 'videoTab', 'active': true, 'action': [selectTab, targetId], 'tabName': 'videoSelection', 'txt': 'Take a Picture' },
-        { 'id': 'audioTab', 'active': false, 'action': [selectTab, targetId], 'tabName': 'audioSelection', 'txt': 'Make a Recording' }
+        { 'id': 'videoTab', 'active': true, 'action': selectTab, 'tabName': 'videoSelection', 'txt': 'Take a Picture' },
+        { 'id': 'audioTab', 'active': false, 'action': selectTab, 'tabName': 'audioSelection', 'txt': 'Make a Recording' }
     ],
     'installAsPwa': installAsPwa,
     'installed': true,
